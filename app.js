@@ -9,6 +9,8 @@ const logger = require('./basic-logger');
 
 const home = require('./routes/index');
 
+var port = process.env.PORT || 8080;
+
 server.use(restify.plugins.throttle({
 	burst: 100,  	// Max 10 concurrent requests (if tokens)
 	rate: 2,  		// Steady state: 2 request / 1 seconds
@@ -26,7 +28,7 @@ server.on('after', restify.plugins.metrics({ server: server }, function onMetric
 	logger.trace(`${metrics.method} ${metrics.path} ${metrics.statusCode} ${metrics.latency} ms`);
 }));
 
-server.listen(8080, function () {
+server.listen(port, function () {
 	logger.info('%s listening at %s', server.name, server.url);
 });
 

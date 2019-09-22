@@ -16,13 +16,20 @@ server.use(restify.plugins.throttle({
 	rate: 2,  		// Steady state: 2 request / 1 seconds
 	ip: true,		// throttle per IP
 }));
-server.use(restify.plugins.bodyParser());
+server.use(restify.plugins.jsonBodyParser());
 server.use(restify.plugins.acceptParser(server.acceptable));
-server.use(restify.plugins.queryParser());
-server.use(restify.plugins.gzipResponse());
 
 router.add('/', home);
 router.applyRoutes(server);
+
+server.on('InvalidContent', function(req, res, err, callback) {
+    err.toJSON = function customToJSON() {
+        return {
+            error: "Could not decode request: JSON parsing failed"
+        };
+    };
+    return callback();
+});
 
 server.on('after', restify.plugins.metrics({ server: server }, function onMetrics(err, metrics) {
 	logger.trace(`${metrics.method} ${metrics.path} ${metrics.statusCode} ${metrics.latency} ms`);
